@@ -1009,6 +1009,9 @@ static bool mspCommonProcessOutCommand(int16_t cmdMSP, sbuf_t *dst, mspPostProce
     return true;
 }
 
+// KLUDGE: set when craft name was read once
+bool craftNameRead = false;
+
 static bool mspProcessOutCommand(int16_t cmdMSP, sbuf_t *dst)
 {
     bool unsupportedCommand = false;
@@ -1096,9 +1099,29 @@ static bool mspProcessOutCommand(int16_t cmdMSP, sbuf_t *dst)
 
     case MSP_NAME:
         {
-            const int nameLen = strlen(pilotConfig()->name);
-            for (int i = 0; i < nameLen; i++) {
-                sbufWriteU8(dst, pilotConfig()->name[i]);
+            // KLUDGE: override name in MSP with warnings OSD element when in flight (not in configurator)
+            // KLUDGE: Flight heuristic: arming not disabled, battery is present, also always answer first name req.
+            if (craftNameRead && (getArmingDisableFlags() & ARMING_DISABLED_MSP) == 0 && getBatteryState() != BATTERY_NOT_PRESENT) {
+                bool isBlinking;
+                uint8_t displayAttr;
+                char warningsBuffer[OSD_FORMAT_MESSAGE_BUFFER_SIZE];
+                renderOsdWarning(warningsBuffer, &isBlinking, &displayAttr);
+                const unsigned warnLen = strlen(warningsBuffer);
+                if (warnLen == 0) {
+                    // write a single space if empty (or googles show CRAFT_NAME string instead)
+                    sbufWriteU8(dst, ' ');
+                } else {
+                    for (unsigned i = 0; i < warnLen; i++) {
+                        sbufWriteU8(dst, warningsBuffer[i]);
+                    }
+                }
+            } else {
+                craftNameRead = true;
+                const char *name = pilotConfig()->name;
+                const unsigned nameLen = strlen(name);
+                for (unsigned i = 0; i < nameLen; i++) {
+                    sbufWriteU8(dst, name[i]);
+                }
             }
         }
         break;
