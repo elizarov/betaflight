@@ -1260,7 +1260,7 @@ static void osdElementVtxChannel(osdElementParms_t *element)
 }
 #endif // USE_VTX_COMMON
 
-static void osdElementWarnings(osdElementParms_t *element)
+static void osdElementWarningsImpl(osdElementParms_t *element)
 {
 #define OSD_WARNINGS_MAX_SIZE 12
 #define OSD_FORMAT_MESSAGE_BUFFER_SIZE (OSD_WARNINGS_MAX_SIZE + 1)
@@ -1534,6 +1534,13 @@ static void osdElementWarnings(osdElementParms_t *element)
         return;
     }
 
+}
+
+// KLUDGE: override name in MSP with warnings OSD element
+static void osdElementWarnings(osdElementParms_t *element)
+{
+    osdElementWarningsImpl(element);
+    strncpy(displayWarningsAsMspName, element->buff, MAX_NAME_LENGTH);
 }
 
 // Define the order in which the elements are drawn.

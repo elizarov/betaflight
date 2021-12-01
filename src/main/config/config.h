@@ -44,6 +44,9 @@ typedef struct pilotConfig_s {
     char displayName[MAX_NAME_LENGTH + 1];
 } pilotConfig_t;
 
+// KLUDGE: override name in MSP with warnings OSD element
+extern char displayWarningsAsMspName[MAX_NAME_LENGTH + 1];
+
 PG_DECLARE(pilotConfig_t, pilotConfig);
 
 typedef struct systemConfig_s {

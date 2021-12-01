@@ -93,6 +93,9 @@ static bool configIsDirty; /* someone indicated that the config is modified and 
 
 static bool rebootRequired = false;  // set if a config change requires a reboot to take effect
 
+// KLUDGE: override name in MSP with warnings OSD element
+char displayWarningsAsMspName[MAX_NAME_LENGTH + 1];
+
 pidProfile_t *currentPidProfile;
 
 #ifndef RX_SPI_DEFAULT_PROTOCOL

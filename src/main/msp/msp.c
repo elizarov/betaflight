@@ -1076,9 +1076,17 @@ static bool mspProcessOutCommand(int16_t cmdMSP, sbuf_t *dst)
 
     case MSP_NAME:
         {
-            const int nameLen = strlen(pilotConfig()->name);
-            for (int i = 0; i < nameLen; i++) {
-                sbufWriteU8(dst, pilotConfig()->name[i]);
+            // KLUDGE: override name in MSP with warnings OSD element
+            const char *name = ((getArmingDisableFlags() & ARMING_DISABLED_MSP) == 0)
+                    ? displayWarningsAsMspName // override in non-MSP connected mode
+                    : pilotConfig()->name; // default when configurator is connected
+            const int nameLen = strlen(name);
+            if (nameLen == 0) {
+                sbufWriteU8(dst, ' '); // write a single space instead of empty
+            } else {
+                for (int i = 0; i < nameLen; i++) {
+                    sbufWriteU8(dst, name[i]);
+                }
             }
         }
         break;
