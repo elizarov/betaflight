@@ -122,8 +122,6 @@ timeUs_t osdFlyTime = 0;
 float osdGForce = 0;
 #endif
 
-static bool showVisualBeeper = false;
-
 static statistic_t stats;
 timeUs_t resumeRefreshAt = 0;
 #define REFRESH_1S    1000 * 1000
@@ -736,7 +734,7 @@ static bool osdDisplayStat(int statistic, uint8_t displayRow)
         osdDisplayStatisticLabel(displayRow, osdConfig()->stat_show_cell_value ? "END AVG CELL" : "END BATTERY", buff);
         return true;
 
-    case OSD_STAT_BATTERY: 
+    case OSD_STAT_BATTERY:
         {
             const uint16_t statsVoltage = getStatsVoltage();
             osdPrintFloat(buff, SYM_NONE, statsVoltage / 100.0f, "", 2, true, SYM_VOLT);
@@ -744,7 +742,7 @@ static bool osdDisplayStat(int statistic, uint8_t displayRow)
             return true;
         }
         break;
-        
+
     case OSD_STAT_MIN_RSSI:
         itoa(stats.min_rssi, buff, 10);
         strcat(buff, "%");
@@ -1203,8 +1201,6 @@ void osdUpdate(timeUs_t currentTimeUs)
         break;
 
     case OSD_STATE_CHECK:
-        showVisualBeeper = isBeeperOn();
-
         // don't touch buffers if DMA transaction is in progress
         if (displayIsTransferInProgress(osdDisplayPort)) {
             break;
@@ -1466,11 +1462,6 @@ bool osdElementVisible(uint16_t value)
     return (bool)((((value & OSD_PROFILE_MASK) >> OSD_PROFILE_BITS_POS) & osdProfile) != 0);
 }
 #endif
-
-bool osdGetVisualBeeperState(void)
-{
-    return showVisualBeeper;
-}
 
 statistic_t *osdGetStats(void)
 {

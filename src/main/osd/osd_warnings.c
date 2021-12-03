@@ -319,6 +319,18 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         return;
     }
 
+    // Visual beeper
+    if (osdWarnGetState(OSD_WARNING_VISUAL_BEEPER)) {
+        // KLUDGE: Display active beeperName name as warning in OSD
+        const char *beeperName = beeperNameCurrentlyOn();
+        if (beeperName != NULL) {
+            warningText[0] = '*';
+            strncpy(warningText + 1, beeperName, OSD_WARNINGS_MAX_SIZE - 1);
+            *displayAttr = DISPLAYPORT_ATTR_INFO;
+            return;
+        }
+    }
+
     // Show warning if battery is not fresh
     if (osdWarnGetState(OSD_WARNING_BATTERY_NOT_FULL) && !(ARMING_FLAG(ARMED) || ARMING_FLAG(WAS_EVER_ARMED)) && (getBatteryState() == BATTERY_OK)
           && getBatteryAverageCellVoltage() < batteryConfig()->vbatfullcellvoltage) {
@@ -326,14 +338,6 @@ void renderOsdWarning(char *warningText, bool *blinking, uint8_t *displayAttr)
         *displayAttr = DISPLAYPORT_ATTR_INFO;
         return;
     }
-
-    // Visual beeper
-    if (osdWarnGetState(OSD_WARNING_VISUAL_BEEPER) && osdGetVisualBeeperState()) {
-        tfp_sprintf(warningText, "  * * * *");
-        *displayAttr = DISPLAYPORT_ATTR_INFO;
-        return;
-    }
-
 }
 
 #endif // USE_OSD
