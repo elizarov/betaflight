@@ -508,6 +508,12 @@ bool isBeeperOn(void)
     return beeperIsOn;
 }
 
+const char *beeperNameCurrentlyOn(void)
+{
+    const beeperTableEntry_t *entry = currentBeeperEntry;
+    return entry == NULL ? NULL : entry->name;
+}
+
 #else
 
 // Stub out beeper functions if #BEEPER not defined
@@ -522,6 +528,7 @@ uint32_t beeperModeMaskForTableIndex(int idx) {UNUSED(idx); return 0;}
 const char *beeperNameForTableIndex(int idx) {UNUSED(idx); return NULL;}
 int beeperTableEntryCount(void) {return 0;}
 bool isBeeperOn(void) {return false;}
+const char *beeperNameCurrentlyOn(void) {return NULL;}
 
 #endif
 
