@@ -133,6 +133,7 @@
 #include "scheduler/scheduler.h"
 
 #include "sensors/acceleration.h"
+#include "sensors/adcinternal.h"
 #include "sensors/barometer.h"
 #include "sensors/battery.h"
 #include "sensors/boardalignment.h"
@@ -1411,7 +1412,8 @@ static bool mspProcessOutCommand(int16_t cmdMSP, sbuf_t *dst)
                 sbufWriteU16(dst, escData->rpm);
             }
         } else {
-            unsupportedCommand = true;
+            // KLUDGE: Replace ESC Temperature MSP response with Core Temperature for DJI FPV Googles
+            sbufWriteU8(dst, getCoreTemperatureCelsius());
         }
 
         break;
