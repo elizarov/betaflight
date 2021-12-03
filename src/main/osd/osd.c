@@ -119,7 +119,7 @@ timeUs_t osdFlyTime = 0;
 float osdGForce = 0;
 #endif
 
-static bool showVisualBeeper = false;
+static const char *showVisualBeeper = NULL;
 
 static statistic_t stats;
 timeUs_t resumeRefreshAt = 0;
@@ -1005,9 +1005,7 @@ void osdUpdate(timeUs_t currentTimeUs)
 {
     static uint32_t counter = 0;
 
-    if (isBeeperOn()) {
-        showVisualBeeper = true;
-    }
+    showVisualBeeper = beeperNameCurrentlyOn();
 
 #ifdef MAX7456_DMA_CHANNEL_TX
     // don't touch buffers if DMA transaction is in progress
@@ -1034,7 +1032,7 @@ void osdUpdate(timeUs_t currentTimeUs)
 
     if (counter % DRAW_FREQ_DENOM == 0) {
         osdRefresh(currentTimeUs);
-        showVisualBeeper = false;
+        showVisualBeeper = NULL;
     } else {
         bool doDrawScreen = true;
 #if defined(USE_CMS) && defined(USE_MSP_DISPLAYPORT) && defined(USE_OSD_OVER_MSP_DISPLAYPORT)
@@ -1064,7 +1062,7 @@ bool osdElementVisible(uint16_t value)
 }
 #endif
 
-bool osdGetVisualBeeperState(void)
+const char *osdGetVisualBeeperState(void)
 {
     return showVisualBeeper;
 }

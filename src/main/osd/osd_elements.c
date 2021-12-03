@@ -1519,17 +1519,25 @@ static void osdElementWarningsImpl(osdElementParms_t *element)
         return;
     }
 
+    // Visual beeper
+    if (osdWarnGetState(OSD_WARNING_VISUAL_BEEPER)) {
+        const char *visualBeeper = osdGetVisualBeeperState();
+        if (visualBeeper != NULL) {
+            int i = 0;
+            while (visualBeeper[i] != 0 && i < OSD_WARNINGS_MAX_SIZE) {
+                element->buff[i] = visualBeeper[i];
+                i++;
+            }
+            element->buff[i + 1] = 0;
+            element->attr = DISPLAYPORT_ATTR_INFO;
+            return;
+        }
+    }
+
     // Show warning if battery is not fresh
     if (osdWarnGetState(OSD_WARNING_BATTERY_NOT_FULL) && !(ARMING_FLAG(ARMED) || ARMING_FLAG(WAS_EVER_ARMED)) && (getBatteryState() == BATTERY_OK)
           && getBatteryAverageCellVoltage() < batteryConfig()->vbatfullcellvoltage) {
         tfp_sprintf(element->buff, "BATT < FULL");
-        element->attr = DISPLAYPORT_ATTR_INFO;
-        return;
-    }
-
-    // Visual beeper
-    if (osdWarnGetState(OSD_WARNING_VISUAL_BEEPER) && osdGetVisualBeeperState()) {
-        tfp_sprintf(element->buff, "  * * * *");
         element->attr = DISPLAYPORT_ATTR_INFO;
         return;
     }

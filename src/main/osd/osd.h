@@ -336,7 +336,7 @@ void osdAnalyzeActiveElements(void);
 uint8_t getCurrentOsdProfileIndex(void);
 void changeOsdProfileIndex(uint8_t profileIndex);
 bool osdElementVisible(uint16_t value);
-bool osdGetVisualBeeperState(void);
+const char *osdGetVisualBeeperState(void);
 statistic_t *osdGetStats(void);
 bool osdNeedsAccelerometer(void);
 displayPort_t *osdGetDisplayPort(osdDisplayPortDevice_e *displayPortDevice);
