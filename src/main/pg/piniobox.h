@@ -29,3 +29,9 @@ typedef struct pinioBoxConfig_s {
 } pinioBoxConfig_t;
 
 PG_DECLARE(pinioBoxConfig_t, pinioBoxConfig);
+
+typedef struct pinioBoxPulseConfig_s {
+    uint8_t pulse[PINIO_COUNT]; // pulse length x 100ms or zero
+} pinioBoxPulseConfig_t;
+
+PG_DECLARE(pinioBoxPulseConfig_t, pinioBoxPulseConfig);

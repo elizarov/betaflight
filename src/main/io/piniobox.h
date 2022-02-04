@@ -20,6 +20,6 @@
 
 #include "pg/piniobox.h"
 
-void pinioBoxInit(const pinioBoxConfig_t *pinioBoxConfig);
+void pinioBoxInit(const pinioBoxConfig_t *pinioBoxConfig, const pinioBoxPulseConfig_t *pinioBoxPulseConfig);
 void pinioBoxUpdate(timeUs_t currentTimeUs);
 void pinioBoxTaskControl(void);
