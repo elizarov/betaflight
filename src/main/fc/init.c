@@ -728,7 +728,7 @@ void init(void)
 #endif
 
 #ifdef USE_PINIOBOX
-    pinioBoxInit(pinioBoxConfig());
+    pinioBoxInit(pinioBoxConfig(), pinioBoxPulseConfig());
 #endif
 
     LED1_ON;

@@ -38,31 +38,63 @@
 
 #include "piniobox.h"
 
+#define PULSE_DURATION_US 100000 // pulse duration is configured in 100 ms increments
+
+typedef enum { PULSE_NONE, PULSE_ACTIVE, PULSE_DONE } pulseState_e;
+
 typedef struct pinioBoxRuntimeConfig_s {
-    uint8_t boxId[PINIO_COUNT];
+    uint8_t boxId;
+    uint8_t pulse; // pulse duration x 100 ms
+    pulseState_e pulseState; // state of the pulse
+    timeUs_t pulseStartTimeUs; // time when pulse was activated
 } pinioBoxRuntimeConfig_t;
 
-static pinioBoxRuntimeConfig_t pinioBoxRuntimeConfig;
+static pinioBoxRuntimeConfig_t pinioBoxRuntimeConfig[PINIO_COUNT];
 
-void pinioBoxInit(const pinioBoxConfig_t *pinioBoxConfig)
+void pinioBoxInit(const pinioBoxConfig_t *pinioBoxConfig, const pinioBoxPulseConfig_t *pinioBoxPulseConfig)
 {
-    // Convert permanentId to boxId_e
-
+    // Convert permanentId to boxId and extract pulse configuration
     for (int i = 0; i < PINIO_COUNT; i++) {
         const box_t *box = findBoxByPermanentId(pinioBoxConfig->permanentId[i]);
-
-        pinioBoxRuntimeConfig.boxId[i] = box ? box->boxId : BOXID_NONE;
+        pinioBoxRuntimeConfig[i].boxId = box ? box->boxId : BOXID_NONE;
+        pinioBoxRuntimeConfig[i].pulse = pinioBoxPulseConfig->pulse[i];
     }
 }
 
 void pinioBoxUpdate(timeUs_t currentTimeUs)
 {
-    UNUSED(currentTimeUs);
-
     for (int i = 0; i < PINIO_COUNT; i++) {
-        if (pinioBoxRuntimeConfig.boxId[i] != BOXID_NONE) {
-            pinioSet(i, getBoxIdState(pinioBoxRuntimeConfig.boxId[i]));
+        uint8_t boxId = pinioBoxRuntimeConfig[i].boxId;
+        if (boxId == BOXID_NONE) continue; // nothing to do for this one -- not configured
+        bool desiredOn = getBoxIdState(boxId); // desired to turn "on"
+        if (pinioBoxRuntimeConfig[i].pulse) {
+            // process pulse and adjust desiredOn value according to pulse timing
+            switch (pinioBoxRuntimeConfig[i].pulseState) {
+                case PULSE_NONE:
+                    // activate pulse if desired
+                    if (desiredOn) {
+                        pinioBoxRuntimeConfig[i].pulseState = PULSE_ACTIVE;
+                        pinioBoxRuntimeConfig[i].pulseStartTimeUs = currentTimeUs;
+                    }
+                    break;
+                case PULSE_ACTIVE:
+                    // turn off only when the pulse is over
+                    desiredOn = cmpTimeUs(currentTimeUs, pinioBoxRuntimeConfig[i].pulseStartTimeUs) <
+                                (timeDelta_t) pinioBoxRuntimeConfig[i].pulse * PULSE_DURATION_US;
+                    if (!desiredOn) {
+                        pinioBoxRuntimeConfig[i].pulseState = PULSE_DONE;
+                    }
+                    break;
+                case PULSE_DONE:
+                    if (desiredOn) {
+                        desiredOn = false; // pulse is over!
+                    } else {
+                        // reset pulse logic when it is no longer desired
+                        pinioBoxRuntimeConfig[i].pulseState = PULSE_NONE;
+                    }
+            }
         }
+        pinioSet(i, desiredOn);
     }
 }
 
@@ -70,7 +102,8 @@ void pinioBoxTaskControl(void)
 {
     bool enableTask = false;
     for (int i = 0; i < PINIO_COUNT; i++) {
-        if (pinioBoxRuntimeConfig.boxId[i] != BOXID_NONE && isModeActivationConditionPresent(pinioBoxRuntimeConfig.boxId[i])) {
+        uint8_t boxId = pinioBoxRuntimeConfig[i].boxId;
+        if (boxId != BOXID_NONE && isModeActivationConditionPresent(boxId)) {
             enableTask = true;
             break;
         }

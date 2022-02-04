@@ -41,4 +41,15 @@ PG_RESET_TEMPLATE(pinioBoxConfig_t, pinioBoxConfig,
         PERMANENT_ID_NONE
     },
 );
+
+PG_REGISTER_WITH_RESET_TEMPLATE(pinioBoxPulseConfig_t, pinioBoxPulseConfig, PG_PINIOBOX_PULSE_CONFIG, 1);
+
+PG_RESET_TEMPLATE(pinioBoxPulseConfig_t, pinioBoxPulseConfig,
+    .pulse = {
+        0,
+        0,
+        0,
+        0
+    },
+);
 #endif

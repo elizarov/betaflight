@@ -1602,6 +1602,7 @@ const clivalue_t valueTable[] = {
     { "pinio_config", VAR_UINT8 | HARDWARE_VALUE | MODE_ARRAY, .config.array.length = PINIO_COUNT, PG_PINIO_CONFIG, offsetof(pinioConfig_t, config) },
 #ifdef USE_PINIOBOX
     { "pinio_box", VAR_UINT8 | HARDWARE_VALUE | MODE_ARRAY, .config.array.length = PINIO_COUNT, PG_PINIOBOX_CONFIG, offsetof(pinioBoxConfig_t, permanentId) },
+    { "pinio_box_pulse", VAR_UINT8 | HARDWARE_VALUE | MODE_ARRAY, .config.array.length = PINIO_COUNT, PG_PINIOBOX_PULSE_CONFIG, offsetof(pinioBoxPulseConfig_t, pulse) },
 #endif
 #endif
 
